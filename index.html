@@ -1,0 +1,608 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>RoboTok: An Internet-Scale Data Engine for Human Demonstration Video Retrieval and Dexterous Manipulation Learning</title>
+
+  <meta name="description"
+    content="RoboTok converts in-the-wild human videos into a torso-relative 3D hand trajectory embedding space and retrieves clips with similar hand motions, for dexterous anthropomorphic robot policy learning.">
+  <meta name="keywords" content="Robot Learning, Dexterous Manipulation, Retrieval, Human Video, Tokenization">
+  <!-- Kept out of every search index while the paper is under review. The
+       _headers file sends the same directive as an X-Robots-Tag on every
+       response, which is what covers the videos, images and JSON that a
+       meta tag cannot reach. Crawling is deliberately NOT blocked in a
+       robots.txt: a blocked crawler never reads the page, so it never
+       sees this noindex, and the bare URL can still surface. -->
+  <meta name="robots" content="noindex, nofollow, noarchive, nosnippet, noimageindex">
+  <!-- No analytics or third-party trackers on this page. -->
+
+  <!-- Absolute, and the same address in all three places: Open Graph resolves
+       nothing relative, and a canonical that disagrees splits the page in two. -->
+  <link rel="canonical" href="https://robotok569.github.io/">
+
+  <meta property="og:title" content="RoboTok: An Internet-Scale Data Engine for Human Demonstration Video Retrieval and Dexterous Manipulation Learning">
+  <meta property="og:description"
+    content="RoboTok converts in-the-wild human videos into a torso-relative 3D hand trajectory embedding space and retrieves clips with similar hand motions, for dexterous anthropomorphic robot policy learning.">
+  <meta property="og:url" content="https://robotok569.github.io/">
+  <meta property="og:site_name" content="RoboTok">
+  <meta property="og:image" content="https://robotok569.github.io/static/images/hero.jpg">
+  <meta property="og:image:width" content="1800">
+  <meta property="og:image:height" content="983">
+  <meta property="og:image:alt" content="RoboTok: retrieving human hand-motion demonstrations for dexterous robot policy learning">
+  <meta property="og:type" content="website">
+
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="RoboTok: An Internet-Scale Data Engine for Human Demonstration Video Retrieval">
+  <meta name="twitter:description"
+    content="Converting in-the-wild human videos into a 3D hand trajectory embedding space, and retrieving from it for dexterous robot policy learning.">
+  <meta name="twitter:image" content="https://robotok569.github.io/static/images/hero.jpg">
+
+
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "ScholarlyArticle",
+    "datePublished": "2026",
+    "headline": "RoboTok: An Internet-Scale Data Engine for Human Demonstration Video Retrieval and Dexterous Manipulation Learning",
+    "url": "https://robotok569.github.io/",
+    "image": "https://robotok569.github.io/static/images/hero.jpg",
+    "description": "RoboTok converts in-the-wild human videos into a torso-relative 3D hand trajectory embedding space and retrieves clips with similar hand motions, for dexterous anthropomorphic robot policy learning.",
+    "author": [
+      {"@type": "Person", "name": "Anonymous Authors", "affiliation": {"@type": "Organization", "name": "Anonymous Institution"}}
+    ]
+  }
+  </script>
+
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>✋</text></svg>">
+
+  <!-- Noto Sans is served from static/fonts/, so the page contacts no third
+       party and no reader's address reaches a font CDN. index.css carries the
+       @font-face rules and explains the subsets. -->
+  <link rel="preload" as="font" type="font/woff2"
+        href="./static/fonts/noto-sans-latin-400.woff2" crossorigin>
+  <link rel="preload" as="video" href="./static/videos/hero/pipeline.mp4" type="video/mp4">
+
+  <link rel="stylesheet" href="./static/css/bulma.min.css">
+  <link rel="stylesheet" href="./static/css/index.css">
+
+  <script src="./static/js/index.js" defer></script>
+</head>
+
+<body class="has-sidebar">
+
+  <!-- ============================ SIDEBAR NAV ============================ -->
+  <nav class="sidebar-nav" id="sidebar-nav" aria-label="Section navigation">
+    <ul>
+      <li><a href="#top">Top</a></li>
+      <li><a href="#abstract">Abstract</a></li>
+      <li><a href="#method">Method</a></li>
+      <li><a href="#retrieval-demo">Retrieval Demo (Interactive)</a></li>
+      <li><a href="#retrieval-results">Retrieval Results</a></li>
+      <li>
+        <a href="#downstream">Downstream Robot Evaluations</a>
+        <ul class="nav-sub">
+          <li><a href="#sim-tasks">Simulation Tasks</a></li>
+          <li><a href="#sim-results">Simulation Task Results</a></li>
+          <li><a href="#real-tasks">Real World Tasks</a></li>
+          <li><a href="#real-results">Real World Task Results</a></li>
+        </ul>
+      </li>
+      <li><a href="#references">References</a></li>
+      <li><a href="#bibtex">BibTeX</a></li>
+    </ul>
+  </nav>
+
+  <!-- ============================ HEADER ============================ -->
+  <header class="paper-header" id="top">
+    <!-- A pre-rendered mosaic of 500 corpus clips, each with its own animated
+         hand trajectory in the cell to its right. Carries no text
+         of its own, so nothing behind the title competes with it. Each row is
+         already rolled sideways in the file, so the poster and the first played
+         frame are staggered exactly like the rest -- nothing snaps into place
+         once a script runs. -->
+    <video class="hero-background-video"
+           muted loop autoplay playsinline preload="metadata"
+           poster="./static/videos/banner/banner_poster.jpg"
+           data-src="./static/videos/banner/banner.mp4"
+           aria-label="Five hundred human manipulation clips from the RoboTok corpus, each beside its tracked hand trajectory, playing at once"></video>
+    <div class="paper-hero-overlay" aria-hidden="true"></div>
+
+    <div class="page-wrap paper-hero-content">
+      <h1 class="paper-title"><span class="brand">RoboTok</span></h1>
+      <p class="paper-subtitle">
+        An Internet-Scale Data Engine for Human Demonstration Video<br class="is-hidden-mobile">
+        Retrieval and Dexterous Manipulation Learning
+      </p>
+
+      <!-- Anonymized for double-blind review: the author names, their personal
+           pages, the affiliations and the institution logos are all withheld
+           until the review is over. The markup that carried them is kept, so
+           the byline restores to its full form by putting the names back. -->
+      <p class="author-list">
+        Anonymous Authors
+      </p>
+      <p class="affil-list">
+        <span class="affil">Anonymous Institution</span>
+      </p>
+
+      <div class="link-row">
+        <a class="link-btn" href="https://github.com/robotok569/code"
+           target="_blank" rel="noopener">
+          <svg viewBox="0 0 32 32" aria-hidden="true"><path fill-rule="evenodd" clip-rule="evenodd" d="M16 0C7.16 0 0 7.16 0 16C0 23.08 4.58 29.06 10.94 31.18C11.74 31.32 12.04 30.84 12.04 30.42C12.04 30.04 12.02 28.78 12.02 27.44C8 28.18 6.96 26.46 6.64 25.56C6.46 25.1 5.68 23.68 5 23.3C4.44 23 3.64 22.26 4.98 22.24C6.24 22.22 7.14 23.4 7.44 23.88C8.88 26.3 11.18 25.62 12.1 25.2C12.24 24.16 12.66 23.46 13.12 23.06C9.56 22.66 5.84 21.28 5.84 15.16C5.84 13.42 6.46 11.98 7.48 10.86C7.32 10.46 6.76 8.82 7.64 6.62C7.64 6.62 8.98 6.2 12.04 8.26C13.32 7.9 14.68 7.72 16.04 7.72C17.4 7.72 18.76 7.9 20.04 8.26C23.1 6.18 24.44 6.62 24.44 6.62C25.32 8.82 24.76 10.46 24.6 10.86C25.62 11.98 26.24 13.4 26.24 15.16C26.24 21.3 22.5 22.66 18.94 23.06C19.52 23.56 20.02 24.52 20.02 26.02C20.02 28.16 20 29.88 20 30.42C20 30.84 20.3 31.34 21.1 31.18C27.42 29.06 32 23.06 32 16C32 7.16 24.84 0 16 0V0Z"/></svg>
+          Code
+        </a>
+        <a class="link-btn" href="https://huggingface.co/RoboTok569/data_and_models"
+           target="_blank" rel="noopener">
+          <img class="brand-icon" src="./static/images/logo_huggingface.svg" alt="" aria-hidden="true">
+          Data and Models
+        </a>
+      </div>
+    </div>
+  </header>
+
+  <!-- ============================ PROJECT VIDEO ============================ -->
+  <section class="section project-video-section" id="project-video" aria-label="RoboTok project video">
+    <div class="page-wrap">
+      <figure class="project-video-frame">
+        <!-- The project video: the paper's t-SNE figure with
+             its bottom row in motion -- each activity's clip playing with its
+             hand skeletons tracking, and the trajectory drawing its trail
+             below -- and then a pan up onto a video-search page, far enough
+             that the embedding stays in shot. Three clips in the row are the
+             retrieval demo's queries: each is dragged into the search field in
+             turn, and the camera pushes into that query's cluster in the plot,
+             where the query and its nine neighbors are laid out. The page then
+             pans right to a second screen, where a button hands over a fourth
+             query -- a cap-twisting clip, whose activity has no cluster in the
+             figure, so its results stay on the page. It closes on the policy
+             rollouts for that task.
+
+             data-src rather than src so it goes through the page's lazy
+             loader like every other video here; muted and looping so it
+             autoplays, with controls left on.
+
+             preload="metadata" rather than "none": with "none" the browser
+             knows no duration until something plays, so the scrub bar is inert
+             -- and if autoplay is blocked it stays inert. The file is
+             faststart, so this costs one small range request. -->
+        <video class="project-video-player"
+               muted controls playsinline preload="metadata"
+               data-autoplay-once
+               poster="./static/videos/teaser/teaser_poster.jpg"
+               data-src="./static/videos/teaser/teaser.mp4"
+               aria-label="A t-SNE of RoboTok's learned motion embedding with seven discovered activity clusters, and below it one clip per activity playing with its tracked hand trajectory. The view pans up to a video-search page, with the embedding still in shot, and three corpus clips - knife cutting, drawing and crocheting - are dragged into the search field one after another; after each search the view zooms into that activity's cluster, where the query and the nine clips RoboTok retrieves for it are shown in rank order. The page then pans right, a button supplies a fourth query of someone twisting a bottle cap, and its results appear on the page. The video ends on fifty simulated rollouts of the bottle-cap policy"></video>
+        <figcaption><b>RoboTok</b> is an internet-scale data engine for robot manipulation learning. It organizes internet human demonstration videos into a torso-relative 3D hand trajectory embedding space and retrieves clips with similar hand motions for a given query demonstration.</figcaption>
+      </figure>
+    </div>
+  </section>
+
+  <!-- ============================ ABSTRACT ============================ -->
+  <section class="section section-alt" id="abstract">
+    <div class="page-wrap">
+      <h2 class="section-title">Abstract</h2>
+      <div class="section-rule"></div>
+      <div class="prose">
+        <p>
+          Robot learning increasingly depends on broad and diverse demonstrations, yet collecting robot data remains expensive and poorly suited to covering the long tail of real-world tasks. To address this bottleneck, we introduce RoboTok, an internet-scale data engine that, given a query human manipulation video, retrieves manipulation-relevant human demonstrations from web videos for training dexterous robot policies. Specifically, we learn a latent motion space from 3D hand trajectories expressed in estimated actor-centered reference frames. This representation enables manipulation behaviors to be compared across variations in camera viewpoint, scene appearance, and actor occlusions, while remaining compact enough for efficient search and continual indexing over internet-scale video collections. We evaluate RoboTok against existing robot-data retrieval approaches on retrieval benchmarks and downstream robot policy performance. Our results show that RoboTok retrieves more relevant manipulation demonstrations and improves downstream task success, establishing hand-pose trajectory-aware retrieval as a way to make web video a scalable and continuously growing source of supervision for robot learning.
+        </p>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============================ METHOD ============================ -->
+  <section class="section" id="method">
+    <div class="page-wrap">
+      <h2 class="section-title">Method</h2>
+      <div class="section-rule"></div>
+      <div class="takeaway">
+        <p>RoboTok converts internet human demonstration videos into torso-relative 3D hand trajectories and learns a compact embedding supervised by DTW-based motion similarity. This representation enables manipulation behaviors to be compared across variations in camera viewpoint, scene appearance, and actor occlusions. At query time, cosine-similarity search retrieves related manipulation demonstrations without computing DTW over the full corpus.</p>
+      </div>
+      <p class="section-sub pipeline">
+        <span class="stage" data-step="A">Internet videos &rarr; Clip filtering &rarr; Data extraction</span>
+        &rarr; <span class="stage" data-step="B">Hand motion-based retrieval</span>
+        &rarr; <span class="stage is-label" data-step="Downstream">Robot policy training</span>
+      </p>
+
+      <!-- Panels A and B of the method figure, rendered from real corpus data.
+           They are sized to sit side by side in one row eventually; stacked here
+           so each is readable at page width. The images carry no title of their
+           own -- it was taken out so the paper's caption can carry it there --
+           so the page supplies one. -->
+      <figure class="fig">
+        <figcaption class="fig-title"><span class="fig-badge">A</span>Data processing pipeline</figcaption>
+        <picture>
+          <source srcset="./static/images/method_new.webp" type="image/webp">
+          <img src="./static/images/method_new.jpg" alt="Data processing pipeline: clip filtering, 3D hand reconstruction, then torso estimation and egocentric representation">
+        </picture>
+      </figure>
+
+      <figure class="fig fig-stack">
+        <figcaption class="fig-title"><span class="fig-badge">B</span>DTW-aligned trajectory encoder</figcaption>
+        <picture>
+          <source srcset="./static/images/method_new_b.webp" type="image/webp">
+          <img src="./static/images/method_new_b.jpg" alt="DTW-aligned trajectory encoder: the corpus encoded into a latent motion space, and a query retrieved from it">
+        </picture>
+      </figure>
+    </div>
+  </section>
+
+  <!-- ============================ RETRIEVAL DEMO ============================ -->
+  <section class="section section-alt" id="retrieval-demo">
+    <div class="page-wrap">
+      <h2 class="section-title">Retrieval Demo (Interactive)</h2>
+      <div class="section-rule"></div>
+      <div class="takeaway">
+        <p>Unlike appearance-based retrieval methods, RoboTok retrieves video clips with similar hand-pose trajectories across different activities, scenes, and camera viewpoints. We use a trained model to estimate a human torso-centered reference frame using only the 3D hand trajectory, which is effective even when the actor is not directly visible.</p>
+        <p>10 example query videos and their corresponding retrieved videos per method are shown below. An interactive viewer of extracted egocentric 3D hand trajectories is also provided.</p>
+      </div>
+
+      <!-- Corpus pull-back: opens on one clip at full resolution, then zooms out
+           to the corpus grid it came from. static/js/index.js assembles the move
+           from the pre-rendered layers that the directory's manifest.json lists,
+           so the layout lives in the data rather than here. -->
+      <figure class="corpus-zoom" data-dir="./static/videos/corpus"></figure>
+
+      <!-- Mini retrieval demo. The query/neighbour structure and the per-clip 2D
+           and 3D hand trajectories all come from the data file named below; the
+           clips it refers to live in static/videos/retrieval_demo/. -->
+      <div class="retrieval-mini"
+           data-src="./static/data/retrieval_demo.json"
+           data-videos="./static/videos/retrieval_demo"></div>
+    </div>
+  </section>
+
+  <!-- ============================ RETRIEVAL RESULTS ============================ -->
+  <section class="section" id="retrieval-results">
+    <div class="page-wrap">
+      <h2 class="section-title">Retrieval Results</h2>
+      <div class="section-rule"></div>
+      <div class="takeaway">
+        <p>Using canonicalized 3D hand trajectories, RoboTok retrieves manipulation demonstrations on both the in-domain RoboTok evaluation corpus and the out-of-domain AssemblyHands <a class="cite" href="#ref-assemblyhands">[1]</a> corpus, outperforming all evaluated retrieval baselines across every reported metric.</p>
+      </div>
+
+      <h3 class="table-title">In-domain retrieval on the RoboTok evaluation corpus</h3>
+      <figure class="fig table-fig">
+        <div class="table-wrap">
+          <table class="results">
+            <thead>
+              <tr>
+                <th>Method</th>
+                <th>mAP@20 &uarr;<br><a class="cite th-cite" href="#ref-map">[6]</a></th>
+                <th>nDCG@20 &uarr;<br><a class="cite th-cite" href="#ref-ndcg">[7]</a></th>
+                <th>CKNNA@20 &uarr;<br><a class="cite th-cite" href="#ref-cknna">[8]</a></th>
+                <th>MRR@20 &uarr;<br><a class="cite th-cite" href="#ref-mrr">[9]</a></th>
+                <th>Kendall &tau; &uarr;<br><a class="cite th-cite" href="#ref-kendall">[10]</a></th>
+                <th>DTW cost@20 &darr;<br><a class="cite th-cite" href="#ref-dtw">[11]</a></th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr><td>Random</td><td>0.0000</td><td>0.0017</td><td>0.0000</td><td>0.0005</td><td>0.0000</td><td>4.776</td></tr>
+              <tr><td>Flow (CoRL 2024) <a class="cite" href="#ref-flow">[3]</a></td><td>0.0004</td><td>0.0037</td><td>0.0007</td><td>0.0045</td><td>0.0031</td><td>6.612</td></tr>
+              <tr><td>HAND (ICRA 2026) <a class="cite" href="#ref-hand">[4]</a></td><td>0.0009</td><td>0.0087</td><td>0.0024</td><td>0.0122</td><td>0.0118</td><td>4.528</td></tr>
+              <tr><td>STRAP (ICLR 2025) <a class="cite" href="#ref-strap">[5]</a></td><td>0.0071</td><td>0.0390</td><td>0.0217</td><td>0.0824</td><td>0.0137</td><td>4.044</td></tr>
+              <tr class="ours"><td>RoboTok</td><td>0.3531</td><td>0.7757</td><td>0.4853</td><td>0.8576</td><td>0.4867</td><td>1.333</td></tr>
+              <tr class="upper-bound"><td>GT (upper bound)</td><td>1.000</td><td>1.000</td><td>1.000</td><td>1.000</td><td>1.000</td><td>1.145</td></tr>
+            </tbody>
+          </table>
+        </div>
+        <figcaption><b>Table 1.</b> In-domain retrieval on the RoboTok evaluation corpus. The corpus contains 100,000 internet human clips. We train the retrieval model on 90,000 clips and use the remaining 10,000 clips as unseen evaluation queries. The evaluation database contains all 100,000 clips, with the query itself excluded from retrieval. For each query, we define its 20 nearest clips under the DTW metric as the ground-truth relevant set. We evaluate each method by comparing its ranked retrieval results with the relevant set and ranking defined by DTW.</figcaption>
+      </figure>
+
+      <h3 class="table-title">Out-of-domain retrieval on AssemblyHands <a class="cite" href="#ref-assemblyhands">[1]</a></h3>
+      <figure class="fig table-fig">
+        <div class="table-wrap">
+          <table class="results">
+            <thead>
+              <tr>
+                <th>Method</th>
+                <th>mAP@5 &uarr;<br><a class="cite th-cite" href="#ref-map">[6]</a></th>
+                <th>nDCG@5 &uarr;<br><a class="cite th-cite" href="#ref-ndcg">[7]</a></th>
+                <th>CKNNA@5 &uarr;<br><a class="cite th-cite" href="#ref-cknna">[8]</a></th>
+                <th>MRR@5 &uarr;<br><a class="cite th-cite" href="#ref-mrr">[9]</a></th>
+                <th>Kendall &tau; &uarr;<br><a class="cite th-cite" href="#ref-kendall">[10]</a></th>
+                <th>DTW cost@5 (m) &darr;<br><a class="cite th-cite" href="#ref-dtw">[11]</a></th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr><td>Random</td><td>0.0025</td><td>0.7533</td><td>&minus;0.0010</td><td>0.0126</td><td>0.0062</td><td>1.911</td></tr>
+              <tr><td>Flow (CoRL 2024) <a class="cite" href="#ref-flow">[3]</a></td><td>0.0131</td><td>0.7670</td><td>0.0176</td><td>0.0588</td><td>0.0897</td><td>1.850</td></tr>
+              <tr><td>HAND (ICRA 2026) <a class="cite" href="#ref-hand">[4]</a></td><td>0.0214</td><td>0.7590</td><td>0.0256</td><td>0.0964</td><td>0.0799</td><td>1.830</td></tr>
+              <tr><td>STRAP (ICLR 2025) <a class="cite" href="#ref-strap">[5]</a></td><td>0.1330</td><td>0.9102</td><td>0.1812</td><td>0.3968</td><td>0.1569</td><td>1.304</td></tr>
+              <tr class="ours"><td>RoboTok</td><td>0.2614</td><td>0.9632</td><td>0.3358</td><td>0.6215</td><td>0.2679</td><td>1.095</td></tr>
+              <tr class="upper-bound"><td>GT (upper bound)</td><td>1.000</td><td>1.000</td><td>1.000</td><td>1.000</td><td>1.000</td><td>0.966</td></tr>
+            </tbody>
+          </table>
+        </div>
+        <figcaption><b>Table 2.</b> Out-of-domain retrieval on the AssemblyHands <a class="cite" href="#ref-assemblyhands">[1]</a> corpus. The evaluation corpus contains 831 two-hand assembly clips with sensor-grade 3D hand annotations. During evaluation, each clip serves once as a query, and the remaining 830 clips form its candidate set. For each query, we define its five nearest clips under the DTW metric as the ground-truth relevant set. We evaluate each method by comparing its ranked retrieval results with the relevant set and ranking defined by DTW.</figcaption>
+      </figure>
+
+    </div>
+  </section>
+
+  <!-- ==================== DOWNSTREAM ROBOT EVALUATIONS ==================== -->
+  <!-- A plain wrapper, not a section: it exists to give the sidebar's parent
+       entry something to anchor to and to scope the four task sections under
+       it. No styling hangs off it. -->
+  <div id="downstream">
+
+  <!-- ============================ SIMULATION TASKS ============================ -->
+  <section class="section section-alt" id="sim-tasks">
+    <div class="page-wrap">
+      <h2 class="section-title">Simulation Tasks</h2>
+      <div class="section-rule"></div>
+      <div class="takeaway">
+        <p>RoboTok-retrieved demonstrations help robot policies learn to complete simulation tasks more successfully than demonstrations retrieved by baseline methods. The evaluation rollout videos below compare the resulting policy behaviors. Only proprioception and fingertip force are used as inputs.</p>
+        <p>Two cameras are provided to show rollouts from different angles, but are not used as inputs to policies.</p>
+      </div>
+      <!-- Rollout grids: JS fills each block from data-dir, using the shared
+           method / camera lists in static/js/index.js.
+           Expected files: <data-dir>/{base,random,flow,hand,strap,ours}_{view0,view2}.mp4
+           Leave data-dir empty to render the "coming soon" placeholder. -->
+      <div class="sim-grid-block"
+           data-title="Bottle cap (hard)"
+           data-note="The hand reaches an upright bottle and turns its cap."
+           data-cameras="view2,view0"
+           data-dir="./static/videos/sim/bottle_cap"></div>
+
+      <div class="sim-grid-block"
+           data-title="Screw faucet (hard)"
+           data-note="The hand grasps the faucet handle and screws it around."
+           data-dir="./static/videos/sim/screw_faucet"></div>
+
+      <!-- This task's rollouts were rendered from cameras 0 and 1, not 0 and 2
+           like the two above, so the pair is named explicitly -- the default
+           list would ask for a view2 that does not exist here. -->
+      <div class="sim-grid-block"
+           data-title="Lever sliding (hard)"
+           data-note="The hand slides a lever along its track."
+           data-cameras="view0,view1"
+           data-dir="./static/videos/sim/lever_sliding"></div>
+    </div>
+  </section>
+
+  <!-- ============================ SIM TASK RESULTS ============================ -->
+  <section class="section" id="sim-results">
+    <div class="page-wrap">
+      <h2 class="section-title">Simulation Task Results</h2>
+      <div class="section-rule"></div>
+      <div class="takeaway">
+        <p>RoboTok-guided policies achieve the highest success rates on 5/6 original VTDexManip <a class="cite" href="#ref-vtdexmanip">[2]</a> tasks and achieve the highest success rates on 3/3 modified harder tasks.</p>
+      </div>
+      <p class="section-sub">
+        <b>Easy</b> &mdash; the original benchmark formulation, which restricts the hand to a static
+        position and provides dense task rewards.<br>
+        <b>Hard</b> &mdash; our modified formulation, which allows free hand motion in 3D space and
+        removes many of the dense task rewards.
+      </p>
+
+      <h3 class="table-title">VTDexManip <a class="cite" href="#ref-vtdexmanip">[2]</a> original benchmark tasks (easy)</h3>
+      <figure class="fig table-fig" style="max-width:1180px;">
+        <div class="table-wrap">
+          <table class="results results-grouped">
+            <thead>
+              <tr>
+                <th>Tasks</th>
+                <th>Split</th>
+                <th>Base <a class="cite" href="#ref-vtdexmanip">[2]</a></th>
+                <th>Random</th>
+                <th>Flow (CoRL 2024) <a class="cite" href="#ref-flow">[3]</a></th>
+                <th>HAND (ICRA 2026) <a class="cite" href="#ref-hand">[4]</a></th>
+                <th>STRAP (ICLR 2025) <a class="cite" href="#ref-strap">[5]</a></th>
+                <th>VT-JointPretrain <a class="cite" href="#ref-vtdexmanip">[2]</a></th>
+                <th class="col-ours">RoboTok</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr class="task-row"><th scope="rowgroup" rowspan="2">BottleCap Turning</th><td class="split">Seen</td><td>55.9&plusmn;5.6</td><td>61.0&plusmn;1.0</td><td>64.8&plusmn;2.6</td><td>71.2&plusmn;1.0</td><td>68.2&plusmn;2.1</td><td>83.7&plusmn;0.9</td><td class="best col-ours">90.2&plusmn;1.3</td></tr>
+              <tr><td class="split">Unseen</td><td>36.8&plusmn;9.4</td><td>61.8&plusmn;1.6</td><td>62.8&plusmn;2.3</td><td>68.2&plusmn;1.9</td><td>65.7&plusmn;3.5</td><td>81.3&plusmn;0.5</td><td class="best col-ours">85.2&plusmn;1.4</td></tr>
+              <tr class="task-row group-start"><th scope="rowgroup" rowspan="2">Faucet Screwing</th><td class="split">Seen</td><td>49.0&plusmn;12.0</td><td>57.6&plusmn;19.0</td><td>71.6&plusmn;4.3</td><td>46.2&plusmn;23.4</td><td>40.7&plusmn;17.8</td><td>80.1&plusmn;1.8</td><td class="best col-ours">91.3&plusmn;5.3</td></tr>
+              <tr><td class="split">Unseen</td><td>43.9&plusmn;10.5</td><td>47.0&plusmn;19.4</td><td>55.2&plusmn;6.3</td><td>34.2&plusmn;20.9</td><td>30.1&plusmn;13.3</td><td>73.6&plusmn;2.1</td><td class="best col-ours">77.5&plusmn;5.9</td></tr>
+              <tr class="task-row group-start"><th scope="rowgroup" rowspan="2">Lever Sliding</th><td class="split">Seen</td><td>5.8&plusmn;4.4</td><td>65.6&plusmn;18.0</td><td>80.0&plusmn;3.5</td><td>74.0&plusmn;0.9</td><td>64.5&plusmn;17.5</td><td>89.3&plusmn;3.6</td><td class="best col-ours">95.5&plusmn;4.6</td></tr>
+              <tr><td class="split">Unseen</td><td>2.2&plusmn;1.9</td><td>57.3&plusmn;23.8</td><td>75.3&plusmn;19.2</td><td>73.0&plusmn;16.6</td><td>51.4&plusmn;2.8</td><td>79.6&plusmn;6.1</td><td class="best col-ours">92.0&plusmn;4.4</td></tr>
+              <tr class="task-row group-start"><th scope="rowgroup" rowspan="2">Table Reorientation</th><td class="split">Seen</td><td>51.8&plusmn;6.3</td><td>64.4&plusmn;3.4</td><td>49.4&plusmn;10.3</td><td>62.1&plusmn;2.2</td><td>68.1&plusmn;2.5</td><td class="best">85.0&plusmn;1.4</td><td class="col-ours">82.6&plusmn;2.0</td></tr>
+              <tr><td class="split">Unseen</td><td>46.7&plusmn;7.3</td><td>56.2&plusmn;2.4</td><td>62.0&plusmn;3.6</td><td>65.2&plusmn;3.3</td><td>43.2&plusmn;6.1</td><td class="best">84.6&plusmn;1.1</td><td class="col-ours">76.2&plusmn;1.0</td></tr>
+              <tr class="task-row group-start"><th scope="rowgroup" rowspan="2">In-hand Reorientation</th><td class="split">Seen</td><td>38.1&plusmn;2.4</td><td>55.3&plusmn;3.0</td><td>60.1&plusmn;4.3</td><td>63.1&plusmn;3.2</td><td>55.9&plusmn;4.5</td><td>62.2&plusmn;5.0</td><td class="best col-ours">76.6&plusmn;4.4</td></tr>
+              <tr><td class="split">Unseen</td><td>33.7&plusmn;1.6</td><td>45.1&plusmn;3.8</td><td>51.4&plusmn;1.3</td><td>48.9&plusmn;4.2</td><td>47.6&plusmn;2.8</td><td>55.1&plusmn;2.7</td><td class="best col-ours">70.1&plusmn;3.0</td></tr>
+              <tr class="task-row group-start"><th scope="rowgroup" rowspan="2">Bimanual Hand-over</th><td class="split">Seen</td><td>8.0&plusmn;4.4</td><td>39.7&plusmn;4.3</td><td>44.6&plusmn;3.1</td><td>48.7&plusmn;3.9</td><td>42.5&plusmn;1.5</td><td>45.5&plusmn;1.5</td><td class="best col-ours">54.3&plusmn;1.2</td></tr>
+              <tr><td class="split">Unseen</td><td>3.3&plusmn;1.4</td><td class="best">42.1&plusmn;2.3</td><td>36.4&plusmn;2.7</td><td>39.3&plusmn;2.5</td><td>38.5&plusmn;1.9</td><td>26.6&plusmn;1.9</td><td class="col-ours">34.8&plusmn;0.9</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </figure>
+
+      <h3 class="table-title">Modified VTDexManip <a class="cite" href="#ref-vtdexmanip">[2]</a> task formulations (hard)</h3>
+
+      <figure class="fig table-fig" style="max-width:1100px;">
+        <div class="table-wrap">
+          <table class="results results-grouped">
+            <thead>
+              <tr>
+                <th>Tasks</th>
+                <th>Split</th>
+                <th>Base</th>
+                <th>Random</th>
+                <th>Flow (CoRL 2024) <a class="cite" href="#ref-flow">[3]</a></th>
+                <th>HAND (ICRA 2026) <a class="cite" href="#ref-hand">[4]</a></th>
+                <th>STRAP (ICLR 2025) <a class="cite" href="#ref-strap">[5]</a></th>
+                <th class="col-ours">RoboTok</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr class="task-row"><th scope="rowgroup" rowspan="2">BottleCap Turning</th><td class="split">Seen</td><td>0.1&plusmn;0.1</td><td>0.2&plusmn;0.1</td><td>1.9&plusmn;1.8</td><td>59.5&plusmn;9.0</td><td>59.0&plusmn;7.3</td><td class="best col-ours">77.3&plusmn;3.5</td></tr>
+              <tr><td class="split">Unseen</td><td>0.0&plusmn;0.0</td><td>0.1&plusmn;0.1</td><td>0.0&plusmn;0.0</td><td>27.0&plusmn;6.0</td><td>25.0&plusmn;5.9</td><td class="best col-ours">38.1&plusmn;5.5</td></tr>
+              <tr class="task-row group-start"><th scope="rowgroup" rowspan="2">Faucet Screwing</th><td class="split">Seen</td><td>1.0&plusmn;0.6</td><td>5.3&plusmn;4.8</td><td>0.0&plusmn;0.0</td><td>6.8&plusmn;4.8</td><td>0.0&plusmn;0.0</td><td class="best col-ours">44.8&plusmn;4.1</td></tr>
+              <tr><td class="split">Unseen</td><td>1.7&plusmn;1.7</td><td>1.0&plusmn;1.0</td><td>0.3&plusmn;0.3</td><td>2.6&plusmn;1.7</td><td>0.0&plusmn;0.0</td><td class="best col-ours">10.9&plusmn;2.8</td></tr>
+              <tr class="task-row group-start"><th scope="rowgroup" rowspan="2">Lever Sliding</th><td class="split">Seen</td><td>0.8&plusmn;0.3</td><td>17.2&plusmn;6.8</td><td>14.4&plusmn;7.3</td><td>19.5&plusmn;4.8</td><td>8.4&plusmn;4.1</td><td class="best col-ours">79.3&plusmn;5.3</td></tr>
+              <tr><td class="split">Unseen</td><td>2.1&plusmn;2.1</td><td>18.8&plusmn;11.9</td><td>19.6&plusmn;12.2</td><td>25.2&plusmn;11.8</td><td>6.5&plusmn;3.4</td><td class="best col-ours">58.3&plusmn;7.5</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </figure>
+
+      <!-- The three panels share one legend, so the plots themselves carry
+           none; the strip below the grid is the key for all of them. -->
+      <div class="grid grid-3" style="margin-top:2.25rem; max-width:1180px; margin-left:auto; margin-right:auto;">
+        <figure class="fig">
+          <picture>
+            <source srcset="./static/images/bottle_cap_success_curves.webp" type="image/webp">
+            <img src="./static/images/bottle_cap_success_curves.jpg" alt="BottleCap Turning success rate over PPO training iterations, comparing RoboTok against HAND, STRAP, Flow, Random and Base">
+          </picture>
+          <figcaption><b>BottleCap Turning</b></figcaption>
+        </figure>
+        <figure class="fig">
+          <picture>
+            <source srcset="./static/images/sf_success_curves.webp" type="image/webp">
+            <img src="./static/images/sf_success_curves.jpg" alt="Faucet Screwing success rate over PPO training iterations, comparing RoboTok against HAND, STRAP, Flow, Random and Base">
+          </picture>
+          <figcaption><b>Faucet Screwing</b></figcaption>
+        </figure>
+        <figure class="fig">
+          <picture>
+            <source srcset="./static/images/lever_sliding_success_curves.webp" type="image/webp">
+            <img src="./static/images/lever_sliding_success_curves.jpg" alt="Lever Sliding success rate over PPO training iterations, comparing RoboTok against HAND, STRAP, Flow, Random and Base">
+          </picture>
+          <figcaption><b>Lever Sliding</b></figcaption>
+        </figure>
+      </div>
+      <picture>
+        <source srcset="./static/images/success_curve_legend.webp" type="image/webp">
+        <img class="curve-legend" src="./static/images/success_curve_legend.jpg" alt="Legend: Base, Random, Flow (CoRL 2024), HAND (ICRA 2026), STRAP (ICLR 2025), RoboTok">
+      </picture>
+
+    </div>
+  </section>
+
+  <!-- ============================ REAL WORLD TASKS ============================ -->
+  <section class="section section-alt" id="real-tasks">
+    <div class="page-wrap">
+      <h2 class="section-title">Real World Tasks</h2>
+      <div class="section-rule"></div>
+
+      <!-- Nothing stands in for the section yet: the blurred body below is a
+           few empty blocks holding the shape a filled-in section will have. No
+           filler words and no filler numbers -- a light blur is not proof
+           against either, and a number in a results table reads as a result
+           however it got there. The notice is real text so a screen reader
+           reaches it; the blocks it covers are aria-hidden, since announcing
+           decoration is worse than announcing nothing. -->
+      <div class="coming-soon">
+        <p class="coming-soon-note">Real-world task videos are coming soon.</p>
+        <div class="coming-soon-body" aria-hidden="true">
+          <span class="ghost ghost-line"></span>
+          <span class="ghost ghost-line is-short"></span>
+          <div class="ghost-row">
+            <span class="ghost ghost-panel"></span>
+            <span class="ghost ghost-panel"></span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============================ REAL WORLD TASK RESULTS ============================ -->
+  <section class="section" id="real-results">
+    <div class="page-wrap">
+      <h2 class="section-title">Real World Task Results</h2>
+      <div class="section-rule"></div>
+
+      <div class="coming-soon">
+        <p class="coming-soon-note">Real-world results are coming soon.</p>
+        <div class="coming-soon-body" aria-hidden="true">
+          <span class="ghost ghost-line"></span>
+          <span class="ghost ghost-table"></span>
+        </div>
+      </div>
+
+    </div>
+  </section>
+
+  </div><!-- /#downstream -->
+
+  <!-- ============================ REFERENCES ============================ -->
+  <section class="section section-alt" id="references">
+    <div class="page-wrap">
+      <h2 class="section-title">References</h2>
+      <div class="section-rule"></div>
+
+      <ol class="ref-list">
+        <li id="ref-assemblyhands">Takehiko Ohkawa, Kun He, Fadime Sener, Tom&aacute;&scaron; Hoda&ncaron;, Luan Tran, and Cem Keskin. AssemblyHands: Towards egocentric activity understanding via 3D hand pose estimation. In <i>Proceedings of the IEEE/CVF Conference on Computer Vision and Pattern Recognition (CVPR)</i>, pp. 12999&ndash;13008, 2023.
+          <a href="https://assemblyhands.github.io/" target="_blank" rel="noopener">assemblyhands.github.io</a>
+        </li>
+        <li id="ref-vtdexmanip">Qingtao Liu, Yu Cui, Zhengnan Sun, Gaofeng Li, Jiming Chen, and Qi Ye. VTDexManip: A dataset and benchmark for visual-tactile pretraining and dexterous manipulation with reinforcement learning. In <i>International Conference on Learning Representations (ICLR)</i>, 2025.
+          <a href="https://lqts.github.io/VTDexManip/" target="_blank" rel="noopener">lqts.github.io/VTDexManip</a>
+        </li>
+        <li id="ref-flow">Li-Heng Lin, Yuchen Cui, Amber Xie, Tianyu Hua, and Dorsa Sadigh. FlowRetrieval: Flow-guided data retrieval for few-shot imitation learning. In <i>Conference on Robot Learning (CoRL)</i>, 2024.
+          <a href="https://flow-retrieval.github.io/" target="_blank" rel="noopener">flow-retrieval.github.io</a>
+        </li>
+        <li id="ref-hand">Matthew Hong, Anthony Liang, Kevin Kim, Harshitha Rajaprakash, Jesse Thomason, Erdem B&#305;y&#305;k, and Jesse Zhang. HAND me the data: Fast robot adaptation via hand path retrieval. In <i>IEEE International Conference on Robotics and Automation (ICRA)</i>, 2026.
+          <a href="https://liralab.usc.edu/handretrieval/" target="_blank" rel="noopener">liralab.usc.edu/handretrieval</a>
+        </li>
+        <li id="ref-strap">Marius Memmel, Jacob Berg, Bingqing Chen, Abhishek Gupta, and Jonathan Francis. STRAP: Robot sub-trajectory retrieval for augmented policy learning. In <i>International Conference on Learning Representations (ICLR)</i>, 2025.
+          <a href="https://weirdlabuw.github.io/strap/" target="_blank" rel="noopener">weirdlabuw.github.io/strap</a>
+        </li>
+
+        <li id="ref-map">Kevin Musgrave, Serge Belongie, and Ser-Nam Lim. A metric learning reality check. In <i>European Conference on Computer Vision (ECCV)</i>, 2020.
+          <a href="https://arxiv.org/abs/2003.08505" target="_blank" rel="noopener">arxiv.org/abs/2003.08505</a>
+        </li>
+        <li id="ref-ndcg">Kalervo J&auml;rvelin and Jaana Kek&auml;l&auml;inen. Cumulated gain-based evaluation of IR techniques. <i>ACM Transactions on Information Systems (TOIS)</i>, 20(4):422&ndash;446, 2002.
+          <a href="https://doi.org/10.1145/582415.582418" target="_blank" rel="noopener">doi.org/10.1145/582415.582418</a>
+        </li>
+        <li id="ref-cknna">Minyoung Huh, Brian Cheung, Tongzhou Wang, and Phillip Isola. The platonic representation hypothesis. In <i>International Conference on Machine Learning (ICML)</i>, 2024.
+          <a href="https://arxiv.org/abs/2405.07987" target="_blank" rel="noopener">arxiv.org/abs/2405.07987</a>
+        </li>
+        <li id="ref-mrr">Ellen M. Voorhees. The TREC-8 question answering track report. In <i>Proceedings of the 8th Text REtrieval Conference (TREC-8)</i>, pp. 77&ndash;82, 1999.
+          <a href="https://trec.nist.gov/pubs/trec8/papers/qa8.pdf" target="_blank" rel="noopener">trec.nist.gov/pubs/trec8/papers/qa8.pdf</a>
+        </li>
+        <li id="ref-kendall">Maurice G. Kendall. A new measure of rank correlation. <i>Biometrika</i>, 30(1&ndash;2):81&ndash;93, 1938.
+          <a href="https://doi.org/10.1093/biomet/30.1-2.81" target="_blank" rel="noopener">doi.org/10.1093/biomet/30.1-2.81</a>
+        </li>
+        <li id="ref-dtw">Hiroaki Sakoe and Seibi Chiba. Dynamic programming algorithm optimization for spoken word recognition. <i>IEEE Transactions on Acoustics, Speech, and Signal Processing</i>, 26(1):43&ndash;49, 1978.
+          <a href="https://doi.org/10.1109/TASSP.1978.1163055" target="_blank" rel="noopener">doi.org/10.1109/TASSP.1978.1163055</a>
+        </li>
+      </ol>
+    </div>
+  </section>
+
+  <!-- ============================ BIBTEX ============================ -->
+  <section class="section" id="bibtex">
+    <div class="page-wrap">
+      <h2 class="section-title">BibTeX</h2>
+      <div class="section-rule"></div>
+      <pre class="bibtex"><code>@article{anonymous2026robotok,
+  title     = {RoboTok: An Internet-Scale Data Engine for Human Demonstration
+               Video Retrieval and Dexterous Manipulation Learning},
+  author    = {Anonymous},
+  note      = {Under review},
+  year      = {2026}
+}</code></pre>
+    </div>
+  </section>
+
+  <!-- ============================ FOOTER ============================ -->
+  <footer class="site-footer">
+    <div class="page-wrap">
+      <p>
+        Website template adapted from <a href="https://github.com/nerfies/nerfies.github.io" rel="noopener">Nerfies</a>,
+        licensed under <a href="http://creativecommons.org/licenses/by-sa/4.0/" rel="license noopener">CC BY-SA 4.0</a>.
+      </p>
+      <!-- Both remaining link buttons carry each site's own mark, named here
+           because they are their owners' trademarks and not ours. No Font
+           Awesome glyph is left on the page: the only one that was ever theirs
+           was the Demo button's play triangle, and that button is gone. Noto
+           Sans is named because the page ships the font file itself rather
+           than loading it from a CDN. LICENSE has the full list. -->
+      <p class="footer-credits">
+        The <a href="https://github.com/" rel="noopener">GitHub</a> and
+        <a href="https://huggingface.co/" rel="noopener">Hugging Face</a> marks are their owners' trademarks.
+        Typeset in <a href="https://fonts.google.com/noto/specimen/Noto+Sans" rel="noopener">Noto Sans</a>
+        (<a href="https://openfontlicense.org/" rel="license noopener">SIL OFL 1.1</a>).
+        Styled with <a href="https://bulma.io/" rel="noopener">Bulma</a> (MIT).
+      </p>
+    </div>
+  </footer>
+
+</body>
+
+</html>

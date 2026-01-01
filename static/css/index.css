@@ -1,0 +1,1151 @@
+/* ============================================================
+   RoboTok project page — custom styles on top of Bulma
+   Theme: light, academic, blue accent
+   ============================================================ */
+
+/* ---------- Fonts ----------
+   Noto Sans, self-hosted, so the page makes no third-party request and no
+   visitor's address reaches a font CDN just by opening it. SIL Open Font
+   License 1.1; see LICENSE.
+
+   Weight 400 only, and every heavier weight on the page is synthesised from
+   it -- which is exactly what the hosted version did, since the request this
+   replaced asked for no weights and so was served 400 alone. Self-hosting the
+   bolds would change the type, not preserve it.
+
+   Three subsets, chosen from the glyphs the page actually sets: latin,
+   latin-ext for the diacritics in the reference list (Tomáš Hodaň, Erdem
+   Bıyık), and greek for the Kendall τ in the results tables. Without the last
+   one the τ silently falls back to a system face mid-heading.
+
+   Noto Sans sets the whole page, display type included. 'Google Sans' used to
+   lead the display stack, but it is Google's proprietary brand font -- absent
+   from the open google/fonts repository, so it cannot be shipped here -- which
+   meant the headings rendered one way for the few readers with it installed
+   and another way for everyone else. One face that every reader actually
+   receives beats a better one that most of them never see.
+   ---------------------------------------------------------------------- */
+@font-face {
+  font-family: 'Noto Sans';
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+  src: url('../fonts/noto-sans-latin-400.woff2') format('woff2');
+  unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
+}
+@font-face {
+  font-family: 'Noto Sans';
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+  src: url('../fonts/noto-sans-latin-ext-400.woff2') format('woff2');
+  unicode-range: U+0100-02BA, U+02BD-02C5, U+02C7-02CC, U+02CE-02D7, U+02DD-02FF, U+0304, U+0308, U+0329, U+1D00-1DBF, U+1E00-1E9F, U+1EF2-1EFF, U+2020, U+20A0-20AB, U+20AD-20C0, U+2113, U+2C60-2C7F, U+A720-A7FF;
+}
+@font-face {
+  font-family: 'Noto Sans';
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+  src: url('../fonts/noto-sans-greek-400.woff2') format('woff2');
+  unicode-range: U+0370-0377, U+037A-037F, U+0384-038A, U+038C, U+038E-03A1, U+03A3-03FF;
+}
+
+:root {
+  --accent: #3578c4;
+  --accent-soft: #6aa8e8;
+  --accent-bg: #eef4fc;
+  --ink: #1f2d3d;
+  --ink-soft: #55677f;
+  --rule: #dfe7f2;
+  --sidebar-w: 140px;
+  /* Affiliation tint. The institution is withheld for double-blind review, so
+     the byline's affiliation line carries the page's own accent rather than a
+     brand colour that would name it. */
+  --affil-light: #8fb6ea;
+  /* Hero visibility controls: increase brightness or reduce overlay opacity. */
+  --hero-video-brightness: .86;
+  --hero-overlay-opacity: .78;
+  /* Display and body are the same face; the two names are kept because the
+     rules below say which role they mean, and only one of them has to change
+     if a display face is ever added. */
+  --font-display: var(--font-body);
+  --font-body: 'Noto Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', Helvetica, Arial, sans-serif;
+}
+
+html { scroll-behavior: smooth; scroll-padding-top: 1.5rem; }
+
+body {
+  font-family: var(--font-body);
+  color: var(--ink);
+  background: #fff;
+}
+
+h1, h2, h3, h4, .title, .subtitle { font-family: var(--font-display); }
+
+.section { padding: 3rem 1.5rem; }
+.section.is-small { padding: 2.25rem 1.5rem; }
+
+/* Alternating section tint */
+.section-alt { background: #f7fafd; }
+
+/* ---------- Content width ---------- */
+.page-wrap { max-width: 1180px; margin: 0 auto; }
+.prose { max-width: 860px; margin: 0 auto; }
+.prose p { font-size: 1.075rem; line-height: 1.75; color: var(--ink); }
+
+/* ---------- Section headings ---------- */
+h2.section-title {
+  color: var(--accent);
+  font-size: 2rem;
+  font-weight: 700;
+  text-align: center;
+  margin-bottom: 0.5rem;
+}
+p.section-sub {
+  text-align: center;
+  color: var(--ink-soft);
+  font-family: var(--font-display);
+  margin-bottom: 2rem;
+}
+/* The method pipeline line, with the stages the figure's panels cover bracketed
+   and lettered to match them. The bracket and badge hang above the text, so the
+   paragraph carries the headroom for both. */
+p.section-sub.pipeline { padding-top: 2.5rem; }
+.pipeline .stage { position: relative; display: inline-block; }
+.pipeline .stage::before {
+  content: '';
+  position: absolute; left: 0; right: 0; bottom: 100%;
+  margin-bottom: .3rem; height: .4rem;
+  border: 2px solid var(--accent-soft);
+  border-bottom: none;
+  border-radius: 7px 7px 0 0;
+}
+.pipeline .stage::after {
+  content: attr(data-step);
+  position: absolute; left: 50%; bottom: 100%;
+  margin-bottom: .85rem; transform: translateX(-50%);
+  width: 1.3rem; height: 1.3rem; line-height: 1.3rem;
+  border-radius: 50%;
+  background: var(--accent); color: #fff;
+  font-family: var(--font-display); font-size: .78rem; font-weight: 700;
+  text-align: center;
+}
+/* A word instead of a letter: the disc becomes a pill wide enough to hold it. */
+.pipeline .stage.is-label::after {
+  width: auto; padding: 0 .55rem; border-radius: 999px;
+}
+
+.section-rule {
+  width: 64px; height: 3px; border-radius: 3px;
+  background: var(--accent);
+  margin: 0.75rem auto 1.25rem;
+}
+
+/* Highlight each section's primary takeaway before supporting details. */
+.takeaway {
+  max-width: 900px;
+  margin: 0 auto 2.25rem;
+  padding: 1.15rem 1.35rem;
+  border-left: 4px solid var(--accent);
+  border-radius: 0 10px 10px 0;
+  background: var(--accent-bg);
+  box-shadow: 0 3px 14px rgba(31, 45, 61, .06);
+}
+.takeaway p {
+  margin: 0;
+  color: var(--ink);
+  font-size: 1.08rem;
+  font-weight: 500;
+  line-height: 1.7;
+}
+.takeaway p + p {
+  margin-top: .55em;
+}
+
+/* ---------- Header / hero ---------- */
+.paper-header {
+  position: relative;
+  isolation: isolate;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 100vh;
+  min-height: 100svh;
+  overflow: hidden;
+  background: #07111f;
+  border-bottom: 0;
+  padding: 5rem 1.25rem 6rem;
+  text-align: center;
+  color: #fff;
+}
+.hero-background-video {
+  position: absolute;
+  z-index: -3;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  max-width: none;
+  object-fit: cover;
+  object-position: center;
+  border: 0;
+  border-radius: 0;
+  background: #07111f;
+  box-shadow: none;
+  filter: saturate(.86) contrast(1.04) brightness(var(--hero-video-brightness));
+  transition: none;
+  /* Opens close in and pulls back to the whole plane. `both` holds the last
+     frame, so it does not snap back to 2.4x when the animation ends. The ease
+     is weighted late, so the pull-back is still visibly moving near the end
+     rather than arriving early and sitting there. */
+  transform-origin: 50% 50%;
+  animation: hero-pull-back 7s cubic-bezier(.16, .84, .28, 1) both;
+}
+@keyframes hero-pull-back {
+  from { transform: scale(2.4); }
+  to { transform: scale(1); }
+}
+@media (prefers-reduced-motion: reduce) {
+  .hero-background-video { animation: none; }
+}
+.paper-hero-overlay {
+  position: absolute;
+  z-index: -2;
+  inset: 0;
+  opacity: var(--hero-overlay-opacity);
+  background:
+    linear-gradient(180deg, rgba(4, 10, 20, .48) 0%, rgba(4, 12, 24, .60) 48%, rgba(4, 12, 24, .76) 100%),
+    radial-gradient(circle at center, rgba(8, 24, 46, .08), rgba(3, 9, 18, .32));
+}
+.paper-hero-content {
+  position: relative;
+  z-index: 1;
+  width: 100%;
+  text-shadow: 0 2px 20px rgba(0, 0, 0, .56);
+}
+/* A scrim behind the text only. The banner mosaic is largely white -- half its
+   cells are trajectory panels on white -- so the full-bleed overlay alone left
+   the title sitting on near-white in places. Radial rather than a flat panel,
+   so it has no edge to notice.
+   Navy rather than black, to sit with the rest of the palette.
+
+   farthest-side, not the default farthest-corner: that one only reaches its
+   last stop at the corners, so it is still around a third opaque where it
+   meets the middle of each edge and gets clipped into a rectangle. Sized to
+   the sides, it fades out on every edge and the shape reads as the oval it
+   is. */
+.paper-hero-content::before {
+  content: '';
+  position: absolute;
+  z-index: -1;
+  inset: -7% 4%;
+  pointer-events: none;
+  background: radial-gradient(ellipse farthest-side at 50% 48%,
+    rgba(6, 17, 34, .70) 0%,
+    rgba(6, 17, 34, .64) 40%,
+    rgba(7, 19, 38, .44) 66%,
+    rgba(8, 20, 40, .17) 85%,
+    rgba(8, 20, 40, 0) 100%);
+}
+.paper-title {
+  /* The wordmark is one unbreakable word, so a size the viewport cannot hold
+     does not wrap -- it overflows the centred flex item and .paper-header's
+     overflow:hidden slices both ends off, which reads as the left edge being
+     cut. "RoboTok" measures ~3.8em at this letter-spacing, a little more once
+     the browser synthesises the 800 weight (Noto Sans is shipped at 400 only),
+     so dividing the usable width by 4 fits it edge to edge with a hair spare.
+     min() means that term only takes over once it is the smaller one. */
+  font-size: min(clamp(6.5rem, 13vw, 11.5rem), calc((100vw - 2.5rem) / 4));
+  font-weight: 800;
+  letter-spacing: -0.045em;
+  color: #fff;
+  text-shadow: none;
+  filter: drop-shadow(0 3px 22px rgba(2, 10, 22, .58));
+  margin-bottom: 0.5rem;
+  line-height: .95;
+}
+.paper-title .brand {
+  /* Painted through the glyphs. The fallback colour is what shows if
+     background-clip:text is unavailable, so it has to stand on its own. */
+  color: #bcdcff;
+  background: linear-gradient(96deg, #d9ecff 0%, #79b4f2 42%, #3f8ad8 100%);
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+.paper-subtitle {
+  font-size: clamp(1.35rem, 2.25vw, 2rem);
+  font-weight: 500;
+  color: rgba(255, 255, 255, .94);
+  /* The longer of the two title lines measures ~945px at the 2rem ceiling, so
+     900px forced a third line. Wide enough to hold it, still inside .page-wrap. */
+  max-width: 1060px;
+  margin: 0.8rem auto 1.75rem;
+  line-height: 1.35;
+}
+.author-list {
+  font-family: var(--font-display);
+  font-size: clamp(1rem, 1.45vw, 1.3rem);
+  font-weight: 600;
+  color: #cfe4fb;
+  line-height: 1.6;
+  margin-bottom: 0.25rem;
+}
+.author-list sup { font-size: .62em; font-weight: 500; color: var(--accent-soft); margin-left: .05em; }
+
+/* A name that links to a personal page keeps the author list's colour and
+   carries a faint underline, so the row still reads as one line of names
+   rather than a row of buttons. Hover and keyboard focus brighten both. */
+.author-list a.author-link {
+  color: inherit;
+  text-decoration: underline;
+  text-decoration-color: rgba(207, 228, 251, .4);
+  text-decoration-thickness: 1px;
+  text-underline-offset: .18em;
+  transition: color .15s ease, text-decoration-color .15s ease;
+}
+.author-list a.author-link:hover,
+.author-list a.author-link:focus-visible {
+  color: #fff;
+  text-decoration-color: #fff;
+}
+.affil-list {
+  font-family: var(--font-display);
+  font-size: 1rem;
+  color: rgba(255, 255, 255, .82);
+}
+.affil-list sup { font-size: .68em; margin-right: .1em; }
+.affil-list .affil { font-weight: 600; color: var(--affil-light); }
+
+/* ---------- Placeholder sections ---------- */
+/* A section whose content does not exist yet. The body holds empty blocks --
+   no words, no numbers, nothing rendered from data -- so there is nothing to
+   misread as a real result, and the blur is what makes them read as the ghost
+   of a section rather than as boxes somebody meant to draw.
+
+   The blur sits on the body rather than the wrapper, because a filter applies
+   to an element's pseudo-elements too -- put it on the wrapper and the notice
+   blurs with everything else. The scrim is the wrapper's ::after so it paints
+   over the body, which as a real element would otherwise sit on top of a
+   ::before. */
+.coming-soon { position: relative; }
+.coming-soon-body {
+  filter: blur(20px) saturate(.25);
+  opacity: .5;
+  pointer-events: none;
+  user-select: none;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1.1rem;
+  padding: 1.5rem 0;
+}
+/* The blocks themselves. Sized in the same proportions the real section will
+   have -- a lead-in line, then the media or the table -- so the space the
+   notice sits in is the shape of what is coming, not an arbitrary box. */
+/* Deep enough to survive the treatment stacked on top of them: 20px of blur,
+   half opacity, and then a 62%-white scrim. At the section tints these sit on,
+   a lighter fill washes out completely and the blur has nothing to act on. */
+.ghost {
+  display: block;
+  width: 100%;
+  border-radius: 12px;
+  background: linear-gradient(100deg, #c6d7ec, #dbe6f4 55%, #c6d7ec);
+}
+.ghost-line { max-width: 780px; height: 1.15rem; border-radius: 999px; }
+.ghost-line.is-short { max-width: 540px; }
+.ghost-row {
+  display: flex;
+  gap: 1.25rem;
+  width: 100%;
+  max-width: 980px;
+}
+.ghost-panel { aspect-ratio: 16 / 9; }
+.ghost-table { max-width: 980px; height: 190px; }
+.coming-soon::after {
+  content: '';
+  position: absolute;
+  inset: -0.5rem;
+  z-index: 1;
+  border-radius: 14px;
+  background: rgba(247, 250, 253, .62);
+  pointer-events: none;
+}
+.coming-soon-note {
+  position: absolute;
+  z-index: 2;
+  left: 50%;
+  top: 50%;
+  transform: translate(-50%, -50%);
+  margin: 0;
+  max-width: min(90%, 34rem);
+  padding: .75rem 1.35rem;
+  border-radius: 999px;
+  background: rgba(31, 45, 61, .92);
+  color: #fff;
+  font-family: var(--font-display);
+  font-size: 1rem;
+  font-weight: 700;
+  text-align: center;
+  box-shadow: 0 8px 24px rgba(31, 45, 61, .26);
+}
+@media (prefers-reduced-motion: no-preference) {
+  .coming-soon-body { transition: filter .3s ease; }
+}
+
+/* ---------- Link buttons ---------- */
+.link-row {
+  display: flex; flex-wrap: wrap; justify-content: center;
+  gap: 0.75rem; margin-top: 1.6rem;
+}
+.link-btn {
+  display: inline-flex; align-items: center; gap: 0.5rem;
+  background: var(--ink);
+  color: #fff !important;
+  border-radius: 999px;
+  padding: 0.6rem 1.3rem;
+  font-family: var(--font-display);
+  font-weight: 600;
+  font-size: 0.98rem;
+  text-decoration: none;
+  transition: transform .18s ease, background .18s ease, box-shadow .18s ease;
+}
+.link-btn:hover { transform: translateY(-2px); background: var(--accent); box-shadow: 0 6px 18px rgba(53,120,196,.28); }
+.link-btn svg { width: 18px; height: 18px; fill: currentColor; }
+/* A brand mark that keeps its own colours -- the Hugging Face face -- ships as
+   its own file, so it takes neither the currentColor fill above nor the
+   button's hover colour. Sized by height, since the face is a little wider
+   than it is tall. */
+.link-btn .brand-icon { width: auto; height: 18px; }
+.link-btn.is-disabled {
+  border: 1px solid rgba(255, 255, 255, .24);
+  background: rgba(10, 22, 40, .42); color: rgba(255, 255, 255, .74) !important; cursor: not-allowed;
+  box-shadow: 0 4px 18px rgba(0, 0, 0, .12);
+  backdrop-filter: blur(8px);
+  pointer-events: none;
+}
+
+/* ---------- Figures & media ---------- */
+figure.fig { margin: 0 auto; }
+/* No rule around a figure. The panels are drawn on white and carry their own
+   structure now -- numbered steps, no boxes -- so a frame on the page only
+   re-draws an edge the artwork deliberately gave up. The soft shadow stays:
+   it lifts the white panel off the white section without ruling it. */
+.fig img {
+  display: block; width: 100%; height: auto;
+  border-radius: 12px;
+  border: 0;
+  box-shadow: 0 4px 20px rgba(31,45,61,.08);
+  background: #fff;
+}
+/* Spacing between panels of one figure stacked at page width. Qualified with
+   figure.fig, which is (0,1,1) and whose `margin: 0 auto` shorthand otherwise
+   resets the top margin this sets. */
+figure.fig.fig-stack { margin-top: 1.6rem; }
+/* A title above a panel rather than a caption below it. The panel images no
+   longer carry their own, so the page states which one it is; the disc matches
+   the ones on the pipeline line above. */
+/* Underlined, so the title reads as the figure's own header rather than as a
+   line of page text that happens to sit above it -- which matters more now
+   that the panel below has no frame of its own to start it. */
+figcaption.fig-title {
+  display: flex; align-items: center; justify-content: center;
+  gap: .55rem;
+  margin: 0 0 .9rem;
+  padding-bottom: .5rem;
+  border-bottom: 1px solid var(--rule);
+  font-family: var(--font-display);
+  font-size: 1.05rem;
+  font-weight: 700;
+  color: var(--ink);
+}
+.fig-badge {
+  flex: 0 0 auto;
+  width: 1.45rem; height: 1.45rem; line-height: 1.45rem;
+  border-radius: 50%;
+  background: var(--accent); color: #fff;
+  font-size: .82rem; font-weight: 700;
+  text-align: center;
+}
+figcaption {
+  margin-top: 0.9rem;
+  color: var(--ink-soft);
+  font-size: 0.98rem;
+  line-height: 1.6;
+  text-align: center;
+}
+figcaption b { color: var(--ink); }
+
+/* Shared key for the success-curve grid. Not a .fig img: the shadow and radius
+   that lift a white panel off the page only draw a box around a strip of line
+   swatches.
+   The width is set to a glyph size, not to a fraction of the grid: the strip is
+   one long line of text, so how big its labels read is entirely a function of
+   how wide it is drawn. 810px over a 667pt source lands them a touch above the
+   axis text they explain. Re-derive it if the legend is re-rendered at a
+   different page width -- the labels shrink as the strip gains entries. */
+.curve-legend {
+  display: block;
+  width: 100%;
+  max-width: 810px;
+  height: auto;
+  margin: 1.35rem auto 0;
+}
+
+/* The project-video slot is a real video element, so swapping the source for a
+   re-cut later changes neither its layout nor its interaction. */
+/* Wider than the prose it sits above: the teaser is a seven-column figure, and
+   at 800px each of those columns was about 110px across. */
+.project-video-frame {
+  max-width: 1120px;
+  margin: 0 auto;
+}
+.project-video-player {
+  /* The teaser's own ratio, so the box is the right shape before the video
+     loads and the page does not jump. It was 16/9 with object-fit:cover, which
+     silently cropped a tenth off the top and bottom of a 1920x1204 video.
+     contain means a future rebuild at another ratio letterboxes rather than
+     losing anything. */
+  aspect-ratio: 1920 / 1204;
+  object-fit: contain;
+  border: 1px solid rgba(31, 45, 61, .14);
+  border-radius: 14px;
+  background: #07111f;
+  box-shadow: 0 12px 36px rgba(31, 45, 61, .16);
+}
+.project-video-player:hover {
+  box-shadow: 0 16px 42px rgba(31, 45, 61, .22);
+}
+
+video {
+  display: block;
+  width: 100%;
+  border-radius: 10px;
+  background: #f1f5fb;
+  box-shadow: 0 4px 16px rgba(31, 45, 61, .13);
+  transition: transform .3s ease, box-shadow .3s ease;
+}
+.video-card:hover video { transform: translateY(-4px); box-shadow: 0 8px 30px rgba(31,45,61,.2); }
+.video-card { padding: 0.5rem; }
+.video-label {
+  margin-top: 0.55rem;
+  text-align: center;
+  font-family: var(--font-display);
+  font-weight: 500;
+  color: var(--accent);
+  font-size: 0.98rem;
+}
+.task-card .video-label { font-weight: 600; color: var(--ink); }
+.task-desc {
+  margin-top: 0.3rem;
+  text-align: center;
+  color: var(--ink-soft);
+  font-size: 0.9rem;
+  line-height: 1.5;
+}
+
+/* Placeholder shown when a video/img file is missing */
+.media-missing {
+  display: flex; flex-direction: column; align-items: center; justify-content: center;
+  gap: .5rem;
+  aspect-ratio: 16 / 9;
+  width: 100%;
+  border: 2px dashed #c3d5ec;
+  border-radius: 10px;
+  background: #f7fafd;
+  color: #8496ab;
+  font-family: var(--font-display);
+  text-align: center;
+  padding: 1rem;
+}
+.media-missing code {
+  background: #eaf1fa; color: #46617f;
+  font-size: .8rem; word-break: break-all; padding: .15rem .4rem; border-radius: 4px;
+}
+
+/* ---------- Grids ---------- */
+.grid {
+  display: grid;
+  gap: 1.1rem;
+}
+.grid-2 { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+.grid-3 { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+.grid-4 { grid-template-columns: repeat(4, minmax(0, 1fr)); }
+
+/* ---------- Sidebar nav (floating rail) ---------- */
+.sidebar-nav {
+  position: fixed;
+  left: 14px;
+  top: 50%;
+  transform: translateY(-50%);
+  width: var(--sidebar-w);
+  max-height: 86vh;
+  overflow-y: auto;
+  z-index: 100;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity .3s ease;
+}
+.sidebar-nav.is-visible { opacity: 1; pointer-events: auto; }
+.sidebar-nav ul {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  border-left: 2px solid var(--rule);
+}
+.sidebar-nav li a {
+  display: block;
+  padding: .32rem 0 .32rem .65rem;
+  margin-left: -2px;
+  border-left: 2px solid transparent;
+  color: var(--ink-soft);
+  font-family: var(--font-display);
+  font-size: .85rem;
+  line-height: 1.3;
+  text-decoration: none;
+  overflow-wrap: break-word;
+  transition: color .2s ease, border-color .2s ease;
+}
+.sidebar-nav li a:hover { color: var(--accent); }
+/* Children of a grouped entry: indented, a shade smaller, and without their own
+   rule -- the parent's border already carries the group. */
+.sidebar-nav .nav-sub {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  border-left: none;
+}
+.sidebar-nav .nav-sub li a {
+  padding-left: 1.35rem;
+  font-size: .78rem;
+}
+.sidebar-nav li a.is-active {
+  color: var(--accent);
+  font-weight: 600;
+  border-left-color: var(--accent);
+}
+/* A group whose child is active: marked, but not competing with the child. */
+.sidebar-nav li a.is-active-parent {
+  color: var(--accent);
+  border-left-color: var(--accent-soft);
+}
+
+/* ---------- Rollout selector ---------- */
+.rollout-controls {
+  display: flex; align-items: center; justify-content: center;
+  gap: .6rem; flex-wrap: wrap;
+  margin-bottom: 1.25rem;
+}
+.rollout-controls label {
+  font-family: var(--font-display); font-weight: 600; color: var(--ink-soft); font-size: .95rem;
+}
+.pill-group { display: flex; gap: .35rem; flex-wrap: wrap; }
+.pill {
+  border: 1px solid var(--rule); background: #fff;
+  border-radius: 999px; padding: .32rem .85rem;
+  font-family: var(--font-display); font-size: .9rem; color: var(--ink-soft);
+  cursor: pointer; transition: all .15s ease;
+}
+.pill:hover { border-color: var(--accent-soft); color: var(--accent); }
+.pill.is-active { background: var(--accent); border-color: var(--accent); color: #fff; }
+.pill.is-ours { font-weight: 700; color: var(--accent); border-color: var(--accent-soft); }
+.pill.is-ours.is-active { color: #fff; }
+/* Reference number on a method pill: plain text, since the pill is a button.
+   Matches .rm-method .cite-tag, so the two method selectors read the same. */
+.pill .cite-tag {
+  margin-left: .22em; font-size: .82em; font-weight: 500;
+  vertical-align: .15em; opacity: .75;
+}
+
+/* ---------- Mini retrieval demo ---------- */
+/* Same column as .corpus-zoom just above it, so the demo sits in the page's
+   own width rather than breaking out of it. The panels stay large because the
+   query and each result cell stack their two panes, not because the block is
+   wide. */
+.retrieval-mini { max-width: 1100px; margin: 0 auto; }
+.rm-loading { text-align: center; color: var(--ink-soft); font-family: var(--font-display); padding: 2rem 0; }
+
+.rm-picker { display: flex; justify-content: center; gap: .4rem; flex-wrap: wrap; margin-bottom: 1.4rem; }
+.rm-tab {
+  border: 1px solid var(--rule); background: #fff; border-radius: 999px;
+  padding: .32rem .95rem;
+  font-family: var(--font-display); font-size: .9rem; color: var(--ink-soft);
+  cursor: pointer; transition: all .15s ease;
+}
+.rm-tab:hover { border-color: var(--accent-soft); color: var(--accent); }
+.rm-tab.is-active { background: var(--accent); border-color: var(--accent); color: #fff; }
+
+/* Second axis: which retrieval method produced the neighbours. Underlined
+   rather than pill-shaped, so it doesn't read as another row of query tabs. */
+.rm-methods {
+  display: flex; flex-wrap: wrap; gap: .25rem;
+  border-bottom: 1px solid var(--rule);
+  margin-bottom: .7rem;
+}
+.rm-method {
+  border: 0; background: none; cursor: pointer;
+  padding: .3rem .7rem;
+  margin-bottom: -1px;
+  border-bottom: 2px solid transparent;
+  font-family: var(--font-display); font-size: .85rem; font-weight: 600;
+  color: var(--ink-soft);
+  transition: color .15s ease, border-color .15s ease;
+}
+.rm-method:hover { color: var(--accent); }
+.rm-method.is-active { color: var(--accent); border-bottom-color: var(--accent); }
+/* Reference number on a method tab: plain text, since the tab is a button. */
+.rm-method .cite-tag {
+  margin-left: .22em; font-size: .82em; font-weight: 500;
+  vertical-align: .15em; opacity: .75;
+}
+
+/* Query above its results rather than beside them. Side by side, the query
+   column capped every panel at ~115px; stacked, the query gets the block's
+   full width and the grid below it gets the rest. */
+.rm-body { display: grid; grid-template-columns: minmax(0, 1fr); gap: 2.2rem; align-items: start; }
+.rm-query-head, .rm-results-head {
+  display: flex; align-items: center; gap: .5rem;
+  font-family: var(--font-display); font-size: .82rem;
+  text-transform: uppercase; letter-spacing: .07em; color: var(--ink-soft);
+  margin-bottom: .6rem;
+}
+/* Same two columns as the query's media row, so the frame toggle sits over the
+   trajectory panel it switches rather than floating next to the badge. */
+.rm-query-head {
+  display: grid; grid-template-columns: 1fr 1fr; align-items: end;
+  justify-items: start; gap: 4px;
+}
+.rm-views { display: flex; gap: .3rem; flex-wrap: wrap; }
+.rm-view {
+  border: 1px solid var(--rule); background: #fff; border-radius: 999px;
+  padding: .3rem .8rem; cursor: pointer;
+  font-family: var(--font-display); font-size: .78rem; font-weight: 600;
+  letter-spacing: .02em; text-transform: none; color: var(--ink-soft);
+  transition: all .15s ease;
+}
+/* :not(:disabled) carries its argument's specificity, so this rule outranks
+   .rm-view.is-active -- without the :not(.is-active) it repaints the selected
+   button's label accent-on-accent and the text disappears. */
+.rm-view:hover:not(:disabled):not(.is-active) {
+  border-color: var(--accent-soft); color: var(--accent);
+}
+.rm-view.is-active { background: var(--accent); border-color: var(--accent); color: #fff; }
+.rm-view.is-active:hover { background: #3b82c4; border-color: #3b82c4; color: #fff; }
+.rm-view:disabled { opacity: .45; cursor: not-allowed; }
+/* Set apart by case, not weight -- the label is already 600, where more
+   weight reads as noise. The tracking keeps small caps legible. */
+.rm-view-tag { text-transform: uppercase; letter-spacing: .06em; }
+.rm-badge {
+  background: var(--accent); color: #fff;
+  padding: .12rem .55rem; border-radius: 999px; letter-spacing: .06em;
+}
+
+/* Video and its trajectory share one aspect ratio, so the hand in the clip and
+   the hand in the plot sit at the same place in the frame. The query puts them
+   side by side across the full block; a result cell stacks them instead, which
+   is what buys the grid its panel width -- one column of the 3x3 per panel
+   rather than half of one. */
+.rm-clip { margin: 0; }
+.rm-media { display: grid; gap: 4px; }
+.rm-query .rm-media { grid-template-columns: 1fr 1fr; }
+.rm-grid .rm-media { grid-template-columns: minmax(0, 1fr); gap: 6px; }
+/* The slot fixes the height every panel gets; the panel keeps the clip's own
+   ratio inside it and centres. So a 4:3 clip stands exactly as tall as the
+   16:9 clip beside it and is narrower, instead of taller. --rm-slot-ar is set
+   from the data in index.js. */
+.rm-slot {
+  display: flex; justify-content: center;
+  aspect-ratio: var(--rm-slot-ar, 16 / 9);
+}
+.rm-pane {
+  position: relative; height: 100%; width: auto; max-width: 100%;
+  border-radius: 8px; overflow: hidden; background: #eef2f8;
+}
+.rm-pane video { width: 100%; height: 100%; object-fit: cover; border-radius: 0; box-shadow: none; }
+.rm-traj { background: #f7fafd; border: 1px solid var(--rule); }
+.rm-traj.is-3d { cursor: grab; touch-action: none; background: #fbfdff; }
+.rm-traj.is-3d.is-dragging { cursor: grabbing; }   /* left button: orbit */
+.rm-traj.is-3d.is-panning { cursor: move; }       /* right button: pan */
+.rm-traj canvas { display: block; width: 100%; height: 100%; }
+.rm-rank {
+  position: absolute; left: 8px; top: 8px; z-index: 2;
+  font-family: var(--font-display); font-size: .82rem; font-weight: 600;
+  color: #fff; background: rgba(11, 18, 32, .68);
+  padding: .1rem .5rem; border-radius: 999px;
+}
+/* Shown only once the panel is actually orbitable. */
+.rm-hint { display: none; }
+.rm-traj.is-3d .rm-hint {
+  display: block;
+  position: absolute; right: 8px; top: 8px; z-index: 2;
+  font-family: var(--font-display); font-size: .82rem; font-weight: 600;
+  color: var(--accent); background: var(--accent-bg);
+  border: 1px solid var(--accent-soft);
+  padding: .1rem .5rem; border-radius: 999px;
+  pointer-events: none;   /* the drag starts on the panel underneath */
+}
+/* Smaller on a result panel, which is about two thirds the query's width --
+   the pill would otherwise sit heavier there than it does on the query. */
+.rm-grid .rm-traj.is-3d .rm-hint { font-size: .7rem; padding: .05rem .42rem; right: 6px; top: 6px; }
+.rm-grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 1.2rem 1.4rem; }
+
+/* Sits under the query clip, where the reader first meets a trajectory panel. */
+.rm-legend {
+  display: flex; align-items: center; gap: 1.3rem; flex-wrap: wrap;
+  margin: 1.6rem 0 0; font-size: 1rem; color: var(--ink-soft);
+}
+.rm-key { display: inline-flex; align-items: center; gap: .35rem; font-family: var(--font-display); }
+.rm-key::before { content: ''; width: 22px; height: 0; border-top: 3px solid var(--c); border-radius: 2px; }
+.rm-caveat {
+  margin: .55rem 0 0;
+  font-size: .95rem; line-height: 1.5; color: var(--ink-soft);
+  font-family: var(--font-display);
+}
+.rm-caveat p { margin: 0; }
+/* bulma's minireset strips list markers from every ol, so the numbers have to
+   be asked for back. */
+.rm-caveat ol {
+  list-style: decimal outside;
+  margin: .3rem 0 0; padding-left: 1.6rem;
+}
+.rm-caveat li { margin: .15rem 0; }
+
+@media screen and (max-width: 900px) {
+  p.section-sub.pipeline { padding-top: 0; }
+  .pipeline .stage { display: inline; }
+  .pipeline .stage::before, .pipeline .stage::after { display: none; }
+  .rm-body { grid-template-columns: 1fr; gap: 1.6rem; }
+  .rm-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+}
+
+/* ---------- Corpus pull-back ---------- */
+.corpus-zoom {
+  max-width: 1100px;
+  margin: 0 auto 2.5rem;
+}
+.corpus-stage {
+  position: relative;
+  aspect-ratio: 16 / 9;             /* replaced by JS with the render's true ratio */
+  overflow: hidden;                 /* clips the plane while it is scaled up */
+  border-radius: 12px;
+  background: #0b1220;
+  border: 1px solid var(--rule);
+  box-shadow: 0 8px 34px rgba(31, 45, 61, .18);
+}
+.corpus-plane {
+  position: absolute; inset: 0;
+  transform-origin: 0 0;
+  transform: translate(0, 0) scale(1);   /* settled state; JS animates from full zoom */
+  will-change: transform;
+}
+/* Every detail level is positioned onto the region of the plane it depicts, so
+   all of them inherit the one transform and stay registered at any scale. */
+.corpus-layer {
+  position: absolute;
+  object-fit: cover;
+  border-radius: 0;
+  box-shadow: none;
+  transition: none;
+  background: #0b1220;
+}
+
+.corpus-replay {
+  position: absolute; right: 12px; bottom: 12px;
+  border: 0; border-radius: 999px;
+  padding: .3rem .8rem;
+  font-family: var(--font-display); font-size: .8rem;
+  color: #fff; background: rgba(11, 18, 32, .62);
+  backdrop-filter: blur(4px);
+  cursor: pointer; opacity: 0;
+  transition: opacity .2s ease, background .15s ease;
+}
+/* Kept faintly visible once the pull-back settles — hover alone would hide it
+   entirely on touch devices. */
+.corpus-stage.is-settled .corpus-replay { opacity: .55; }
+.corpus-stage:hover .corpus-replay, .corpus-replay:focus-visible { opacity: 1; }
+.corpus-replay:hover { background: var(--accent); }
+
+.corpus-zoom figcaption { margin-top: .85rem; }
+
+@media (prefers-reduced-motion: reduce) {
+  .corpus-stage .corpus-plane { transform: translate(0, 0) scale(1); }
+}
+
+/* ---------- Simulation rollout grids ---------- */
+.sim-grid-block {
+  max-width: 1180px;
+  margin: 0 auto 3.25rem;
+}
+.sim-grid-block:last-child { margin-bottom: 0; }
+.sim-grid-head { text-align: center; margin-bottom: 1rem; }
+.sim-grid-title {
+  font-family: var(--font-display);
+  font-size: 1.45rem; font-weight: 700; color: var(--ink);
+  margin: 0;
+}
+.sim-grid-note {
+  margin: .3rem 0 0;
+  color: var(--ink-soft); font-size: .95rem;
+}
+.sim-grid-controls { gap: 1.6rem; margin-bottom: 1rem; }
+.sim-grid-controls .control-set { display: inline-flex; align-items: center; gap: .55rem; }
+.sim-grid-controls label {
+  text-transform: uppercase; letter-spacing: .07em; font-size: .78rem;
+}
+
+/* Video plus a left gutter whose 4:1 split lands exactly on the seen/unseen
+   row boundary of the 5-row grid. */
+.sim-grid-stage { display: flex; align-items: stretch; gap: .45rem; }
+.sim-grid-video { flex: 1; min-width: 0; }
+.sim-grid-video video { border-radius: 10px; }
+.sim-grid-video .media-missing { aspect-ratio: 2 / 1; }
+.sim-grid-gutter {
+  flex: 0 0 22px;
+  display: flex; flex-direction: column; gap: 3px;
+  font-family: var(--font-display); font-size: .72rem;
+  letter-spacing: .05em; text-transform: uppercase;
+}
+.sim-grid-gutter span {
+  display: flex; align-items: center; justify-content: center;
+  writing-mode: vertical-rl; transform: rotate(180deg);
+  border-radius: 5px; overflow: hidden; white-space: nowrap;
+}
+.sim-grid-gutter .seen { flex: 4; background: var(--accent-bg); color: var(--accent); }
+.sim-grid-gutter .unseen { flex: 1; background: #fdeeee; color: #b4453f; }
+
+.sim-grid-legend {
+  display: flex; align-items: center; justify-content: center;
+  gap: .8rem; flex-wrap: wrap;
+  margin-top: .8rem;
+  font-size: .85rem; color: var(--ink-soft);
+}
+.legend-chip {
+  display: inline-flex; align-items: center; gap: .35rem;
+  font-family: var(--font-display); font-size: .85rem;
+}
+.legend-chip::before {
+  content: ''; width: 15px; height: 0; border-top: 3px solid currentColor; border-radius: 2px;
+}
+.legend-chip.ok { color: #2f9e4f; }
+.legend-chip.bad { color: #cf3b34; }
+.sim-grid-pending { aspect-ratio: 4 / 1; }
+
+#sim-tasks p.section-sub { max-width: 880px; margin-left: auto; margin-right: auto; line-height: 1.65; }
+#sim-tasks p.section-sub code {
+  background: var(--accent-bg); color: var(--accent);
+  font-size: .82em; padding: .05rem .3rem; border-radius: 4px;
+}
+
+/* ---------- Results table ---------- */
+.table-wrap { overflow-x: auto; }
+table.results {
+  /* Size to content and centre, rather than stretching columns across the
+     full container width — wide gaps make a row hard to read across. */
+  width: auto;
+  margin: 0 auto;
+  border-collapse: collapse;
+  font-size: .95rem;
+  line-height: 1.3;
+  background: #fff;
+}
+table.results th, table.results td {
+  padding: .4rem .7rem;
+  border-bottom: 1px solid var(--rule);
+  text-align: center;
+  white-space: nowrap;
+}
+/* Row hover helps the eye track across a wide row, without erasing the
+   highlighted row / column tints. */
+table.results tbody tr:not(.ours):hover td:not(.col-ours),
+table.results tbody tr:not(.ours):hover th { background: #f5f9fd; }
+table.results tbody tr:hover td.col-ours { background: #e2ecfa; }
+table.results thead th {
+  font-family: var(--font-display);
+  color: var(--ink-soft);
+  font-weight: 600;
+  border-bottom: 2px solid #cfdcec;
+  text-transform: uppercase;
+  font-size: .78rem;
+  letter-spacing: .04em;
+  padding-bottom: .45rem;
+}
+table.results tbody td:first-child, table.results thead th:first-child { text-align: left; }
+table.results tr.ours { background: var(--accent-bg); }
+table.results tr.ours td { font-weight: 700; color: var(--accent); }
+table.results tr.upper-bound td {
+  border-top: 2px solid #cfdcec;
+  color: var(--ink-soft);
+  font-style: italic;
+}
+figure.table-fig {
+  max-width: 1000px;
+  margin: 0 auto 2.75rem;
+}
+/* Grouped results table: task label spans its Seen/Unseen rows. */
+table.results-grouped th[rowspan] {
+  text-align: left;
+  vertical-align: middle;
+  font-family: var(--font-display);
+  font-weight: 600;
+  color: var(--ink);
+}
+table.results-grouped td.split { text-align: left; color: var(--ink-soft); }
+table.results-grouped tr.group-start th,
+table.results-grouped tr.group-start td { border-top: 1px solid #cfdcec; }
+table.results-grouped td.best { font-weight: 700; color: var(--accent); }
+table.results-grouped td.pending { color: #93a2b5; }
+table.results-grouped .col-ours { background: var(--accent-bg); }
+figure.table-fig:last-of-type { margin-bottom: 0; }
+h3.table-title {
+  max-width: 1000px;
+  margin: 2.75rem auto 0.35rem;
+  text-align: center;
+  font-size: 1.2rem;
+  font-weight: 700;
+  color: var(--ink);
+}
+.section-rule + h3.table-title { margin-top: 1.25rem; }
+/* A title sitting straight on a table needs the gap the lead-in would have given. */
+h3.table-title + figure.table-fig,
+h3.table-title + .table-wrap { margin-top: .9rem; }
+p.table-sub {
+  max-width: 780px;
+  margin: 0 auto 1.25rem;
+  text-align: center;
+  color: var(--ink-soft);
+  font-size: 0.97rem;
+  line-height: 1.6;
+}
+p.table-sub a, h3.table-title a, p.section-sub a { color: var(--accent); text-decoration: underline; text-underline-offset: 2px; }
+p.table-sub a:hover, h3.table-title a:hover, p.section-sub a:hover { color: #3b82c4; }
+/* Metric names carry their own casing (mAP, nDCG, CKNNA) — don't upper-case them. */
+figure.table-fig table.results thead th {
+  text-transform: none;
+  font-size: .88rem;
+  letter-spacing: .01em;
+}
+
+/* Numbered citation markers -- [1] .. [5] -- pointing into the References
+   section. Small and superscript-ish so the name beside them stays dominant. */
+a.cite {
+  color: var(--accent);
+  text-decoration: none;
+  font-size: .82em;
+  font-weight: 600;
+  white-space: nowrap;
+  vertical-align: .15em;
+}
+a.cite:hover { text-decoration: underline; text-underline-offset: 2px; }
+table.results a.cite { font-weight: 500; }
+/* A metric's citation sits on its own line under the column name, the way the
+   paper's own table heads carry it. The header row is uppercase and tracked;
+   the marker opts out of both, so it reads as a footnote rather than as part
+   of the metric's name. */
+table.results thead th .th-cite {
+  display: block;
+  margin-top: .15rem;
+  font-size: .82rem;
+  font-weight: 500;
+  letter-spacing: 0;
+  text-transform: none;
+  vertical-align: baseline;
+}
+
+/* ---------- References ---------- */
+.ref-list {
+  max-width: 860px;
+  margin: 0 auto;
+  padding-left: 1.4rem;
+  color: var(--ink);
+  font-size: 1rem;
+  line-height: 1.65;
+}
+.ref-list li { margin-bottom: .7rem; }
+/* Highlight the entry an in-page citation just jumped to. */
+.ref-list li:target {
+  background: var(--accent-bg);
+  box-shadow: 0 0 0 .45rem var(--accent-bg);
+  border-radius: 3px;
+}
+.ref-list li::marker { color: var(--ink-soft); }
+.ref-list a { color: var(--accent); text-decoration: underline; text-underline-offset: 2px; word-break: break-word; }
+.ref-list a:hover { color: #3b82c4; }
+
+/* BibTeX block: monospaced and selectable, scrolling inside itself rather than
+   pushing the page sideways on a narrow screen. */
+pre.bibtex {
+  max-width: 820px;
+  margin: 0 auto;
+  padding: 1.1rem 1.3rem;
+  background: var(--accent-bg);
+  border: 1px solid var(--rule);
+  border-radius: 10px;
+  overflow-x: auto;
+  color: var(--ink);
+  font-size: .86rem;
+  line-height: 1.55;
+  text-align: left;
+}
+pre.bibtex code {
+  font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+  white-space: pre;
+}
+
+/* ---------- Footer ---------- */
+.site-footer {
+  border-top: 1px solid var(--rule);
+  padding: 2rem 1.5rem 2.5rem;
+  text-align: center;
+  color: var(--ink-soft);
+  font-size: .9rem;
+  background: #fbfcfe;
+}
+.site-footer a { color: var(--accent); }
+/* The credits line: required attribution, but it is not what a reader came for,
+   so it sits a step down from the template credit above it. */
+.site-footer .footer-credits {
+  margin-top: .45rem;
+  font-size: .8rem;
+  color: var(--ink-soft);
+  opacity: .85;
+}
+
+/* ---------- Responsive ---------- */
+/* The rail floats over the left margin. Wide viewports have room for it next to
+   the centered content; narrower ones get a little body padding so it never
+   overlaps; below 1100px it is hidden entirely (same as the reference site). */
+@media screen and (max-width: 1099px) {
+  .sidebar-nav { display: none; }
+}
+@media screen and (min-width: 1100px) and (max-width: 1499px) {
+  /* Clear a left gutter for the rail by padding the full-bleed blocks, not
+     <body>. Body padding shrank the page itself, so every section background
+     started 180px in and the strip it vacated showed the body's white -- a bar
+     down the left at these widths only. Each block owns its own background, so
+     padding it keeps that background edge to edge and moves only the content.
+     The numbers are each block's own side padding plus the gutter, which lands
+     .page-wrap exactly where the body padding used to. */
+  body.has-sidebar .paper-header { padding-left: calc(1.25rem + 180px); }
+  body.has-sidebar .section { padding-left: calc(1.5rem + 180px); }
+  body.has-sidebar .site-footer { padding-left: calc(1.5rem + 180px); }
+}
+@media screen and (max-width: 900px) {
+  .grid-4 { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+}
+@media screen and (max-width: 700px) {
+  .paper-header { min-height: 100svh; padding: 4rem 1rem 5rem; }
+  .paper-title { font-size: min(7rem, calc((100vw - 2rem) / 4)); }
+  .paper-subtitle { font-size: 1.08rem; }
+  .author-list { font-size: .92rem; line-height: 1.55; }
+  .affil-list { font-size: .84rem; }
+  .logo-row { gap: 1rem; }
+  .logo-row { --logo-h: 32px; }
+  .link-row { gap: .55rem; margin-top: 1.25rem; }
+  .link-btn { padding: .5rem .85rem; font-size: .82rem; }
+  h2.section-title { font-size: 1.5rem; }
+  .grid-2, .grid-3 { grid-template-columns: 1fr; }
+  .section { padding: 2.25rem 1rem; }
+  .sim-grid-controls { gap: .75rem; }
+  .sim-grid-controls .control-set { flex-direction: column; gap: .3rem; }
+  .sim-grid-gutter { flex-basis: 16px; font-size: .62rem; }
+  .sim-grid-pending { aspect-ratio: 2 / 1; }
+}
