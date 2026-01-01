@@ -1,0 +1,13 @@
+# Keep the page out of search results while the paper is under review.
+#
+# "/" is deliberately NOT disallowed: index.html carries a robots noindex
+# <meta>, and a crawler only reads that directive if it is allowed to fetch
+# the page. Blocking it would leave the bare URL listable.
+#
+# The static assets are different. GitHub Pages cannot send X-Robots-Tag, so
+# no noindex directive can reach a .mp4, .jpg or .json; not letting crawlers
+# fetch them is the only lever left.
+User-agent: *
+Disallow: /static/
+Disallow: /serve.py
+Disallow: /LICENSE

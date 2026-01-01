@@ -1,0 +1,38 @@
+RoboTok project page
+====================
+
+The page itself -- index.html, static/css/index.css, static/js/index.js,
+serve.py and README.md -- is licensed under the Creative Commons
+Attribution-ShareAlike 4.0 International License (CC BY-SA 4.0).
+
+    https://creativecommons.org/licenses/by-sa/4.0/
+    https://creativecommons.org/licenses/by-sa/4.0/legalcode
+
+ShareAlike is not our choice to make: the layout began from the Nerfies project
+page template, which is CC BY-SA 4.0, so anything derived from it inherits the
+same terms.
+
+    Nerfies project page template
+    https://github.com/nerfies/nerfies.github.io
+    Copyright (c) 2021 Keunhong Park and the Nerfies authors
+    CC BY-SA 4.0
+
+
+Third-party components
+----------------------
+
+Bulma -- static/css/bulma.min.css, and the layout classes the page uses
+    MIT License. Copyright (c) 2023 Jeremy Thomas.
+    https://bulma.io/ | https://github.com/jgthms/bulma
+
+Noto Sans -- static/fonts/noto-sans-*.woff2
+    SIL Open Font License 1.1.
+    https://fonts.google.com/noto/specimen/Noto+Sans
+    https://openfontlicense.org/
+    Subsetted to latin, latin-ext and greek; otherwise unmodified.
+
+Noto Sans is the only face the page sets. Earlier revisions led the display
+stack with 'Google Sans', which is Google's proprietary brand font and not part
+of the open google/fonts collection; it has been removed rather than shipped,
+so every reader sees the same typography and the page requests no font from a
+third party.
